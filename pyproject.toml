@@ -1,0 +1,31 @@
+[project]
+name = "github-issues-context-extractor"
+version = "0.1.0"
+description = "Python project to extract GitHub issues and PRs in .json form to feed them to LLM."
+license.file = "LICENSE"
+dependencies = ["click", "PyGithub", "requests"]
+
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [
+    "wheel",
+    "setuptools>=45",
+    "setuptools_scm[toml]>=6.2",
+]
+
+[project.scripts]
+github-issues-context-extractor = "github_issues_context_extractor.extractor:main"
+
+[tool.pixi.project]
+channels = ["conda-forge"]
+platforms = ["linux-64", "linux-aarch64", "osx-arm64", "osx-64", "win-64"]
+
+[tool.pixi.dependencies]
+wheel = "*"
+setuptools = "*"
+click = "*"
+pygithub="*"
+requests = "*"
+
+[tool.pixi.pypi-dependencies]
+github-issues-context-extractor = { path = ".", editable = true }
