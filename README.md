@@ -18,10 +18,14 @@ pixi shell
 Then you can run the `github-issues-context-extractor` command with no problem.
 
 ```bash
-pixi run github-issues-context-extractor
+github-issues-context-extractor
 ```
 
 Otherwise, just install it from source using `pip` or `uv`, in that case there is no need to have pixi installed, and then run the utility as `github-issues-context-extractor`.
+
+> [!NOTE]
+> To run the `github-issues-context-extractor` you need a GitHub Token. If you log in GitHub via the `gh auth` utility, the correct token will be automatically used, otherwise you can export the token you want to use via the `GITHUB_TOKEN` environment variable.
+
 
 ## Usage
 
