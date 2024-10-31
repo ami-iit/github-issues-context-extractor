@@ -1,6 +1,3 @@
-<<<<<<< Updated upstream
-# github-issues-summarizer
-=======
 # github-issues-context-extractor
 
 Simple utility to extract issues and pull requests from a GitHub repo in a single `.json` file, that can be passed to Large Language Models (LLMs).
@@ -46,4 +43,3 @@ to discuss what you would like to change.
 ## License
 
 [BSD-3-Clause](https://spdx.org/licenses/BSD-3-Clause.html)
->>>>>>> Stashed changes
