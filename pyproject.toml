@@ -1,6 +1,6 @@
 [project]
 name = "github-issues-context-extractor"
-version = "0.1.0"
+version = "0.1.1"
 description = "Python project to extract GitHub issues and PRs in .json form to feed them to LLM."
 license.file = "LICENSE"
 dependencies = ["click", "PyGithub", "requests"]
