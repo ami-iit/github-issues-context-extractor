@@ -10,8 +10,11 @@ import subprocess
 
 import re
 
-def encode_images_as_blobs(content):
+def encode_images_as_blobs(content, github_token=None, skip_images=False):
     # Search for image URLs and encode them as base64 blobs
+    if skip_images:
+        return content
+    
     encoded_content = content
     image_urls = []
     # Assume image URLs are markdown-style ![alt text](url)
@@ -22,7 +25,12 @@ def encode_images_as_blobs(content):
 
     for url in image_urls:
         try:
-            image_response = requests.get(url)
+            # Prepare headers for authentication if token is available
+            headers = {}
+            if github_token and 'github.com' in url:
+                headers['Authorization'] = f'Bearer {github_token}'
+            
+            image_response = requests.get(url, headers=headers)
             if image_response.status_code == 200:
                 encoded_blob = base64.b64encode(image_response.content).decode('utf-8')
                 encoded_content = encoded_content.replace(url, f"data:image;base64,{encoded_blob}")
@@ -32,7 +40,7 @@ def encode_images_as_blobs(content):
             print(f"Error fetching image {url}: {e}")
     return encoded_content
 
-def extract_issues(repo, branch, github_token, output_file, query):
+def extract_issues(repo, branch, github_token, output_file, query, skip_images=False):
     # Initialize GitHub instance
     g = Github(github_token)
 
@@ -49,7 +57,7 @@ def extract_issues(repo, branch, github_token, output_file, query):
         print(f"Processing issue {issue}")
         issue_data = {
             "title": issue.title,
-            "body": encode_images_as_blobs(issue.body or ""),
+            "body": encode_images_as_blobs(issue.body or "", github_token, skip_images),
             "comments": [],
         }
 
@@ -58,7 +66,7 @@ def extract_issues(repo, branch, github_token, output_file, query):
         for comment in comments:
             comment_data = {
                 "author": comment.user.login,
-                "body": encode_images_as_blobs(comment.body or "")
+                "body": encode_images_as_blobs(comment.body or "", github_token, skip_images)
             }
             issue_data["comments"].append(comment_data)
 
@@ -75,7 +83,8 @@ def extract_issues(repo, branch, github_token, output_file, query):
 @click.option('--github_token', default=None, hide_input=True, help='Your GitHub Personal Access Token.')
 @click.option('--output_file', default='github_issues.json', help='The name of the file to save')
 @click.option('--query', default='', help='The issues to select a subset of query')
-def main(repo, branch, github_token, output_file, query):
+@click.option('--skip-images', is_flag=True, help='Skip downloading and encoding images as base64 blobs')
+def main(repo, branch, github_token, output_file, query, skip_images):
     """CLI entry point."""
     # Check if GITHUB_TOKEN is set in environment.
     if not github_token:
@@ -98,7 +107,7 @@ def main(repo, branch, github_token, output_file, query):
     # If nothing worked, get it from comamnd line
     if not github_token:
         github_token = click.prompt('GitHub Token', hide_input=True)
-    extract_issues(repo, branch, github_token, output_file, query)
+    extract_issues(repo, branch, github_token, output_file, query, skip_images)
     print(f"Context of requested issue saved at {output_file}")
 
 if __name__ == '__main__':
