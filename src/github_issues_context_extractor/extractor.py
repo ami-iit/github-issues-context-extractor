@@ -46,24 +46,24 @@ def extract_issues(repo, branch, github_token, output_file, query):
     issues = g.search_issues(query=query_issues)
     prs = g.search_issues(query=query_prs)
     for issue in itertools.chain(issues, prs):
+        print(f"Type issue {type(issue)}")
         print(f"Processing issue {issue}")
-        if query.lower() in issue.title.lower() or query.lower() in (issue.body or "").lower():
-            issue_data = {
-                "title": issue.title,
-                "body": encode_images_as_blobs(issue.body or ""),
-                "comments": [],
+        issue_data = {
+            "title": issue.title,
+            "body": encode_images_as_blobs(issue.body or ""),
+            "comments": [],
+        }
+
+        # Get comments for each issue
+        comments = issue.get_comments()
+        for comment in comments:
+            comment_data = {
+                "author": comment.user.login,
+                "body": encode_images_as_blobs(comment.body or "")
             }
+            issue_data["comments"].append(comment_data)
 
-            # Get comments for each issue
-            comments = issue.get_comments()
-            for comment in comments:
-                comment_data = {
-                    "author": comment.user.login,
-                    "body": encode_images_as_blobs(comment.body or "")
-                }
-                issue_data["comments"].append(comment_data)
-
-            issues_data.append(issue_data)
+        issues_data.append(issue_data)
 
     # Save to JSON file
     with open(output_file, "w") as f:
